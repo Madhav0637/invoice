@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0px;
+            padding: 0px;;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .party-details {
+            display: flex;
+            flex-wrap: nowrap;
+            margin-bottom: 20px;
+        }
+        .seller-details{
+        width: 100%; 
+        box-sizing: border-box; 
+        padding: 0 10px; 
+    }
+    .buyer-details {
+        width: 100%;
+        box-sizing: border-box; 
+        padding: 0 10px;
+    }
+    .product {
+        margin-bottom: 10px;
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+    }
+    .product label {
+        margin-left: 5px;
+        width: 50%; /* Adjust as needed */
+    }
+    .product input{
+        font-size: 17px;
+        width: 95px; /* Adjust as needed */
+        box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        margin-top: 0px;
+        margin-right: 20px;
+    }
+        .header{
+            background-color: rgb(79, 251, 251);
+            margin: 0px 0px;
+            border-bottom: 2px solid black;
+        }
+        label{
+            display: block;
+            font-size: 21px;
+        }
+        input{
+            border-radius: 15px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            margin-left: 0px;
+            width: 190px;
+            height: 26px;
+        }
+        textarea{
+            border: 1px solid black;
+            border-radius: 15px;
+            margin-top: 10px;
+            width: 275px;
+            height: 150px;
+        }
+        h2{
+            font-size: 32px;
+        }
+        h1{
+            padding: 40px;
+            margin: 0px;
+            color: darkblue;
+            text-align: center;
+            font-size: 40px;
+        }
+        button{
+            border-radius: 20px;
+            padding: 10px;
+            background-color: rgb(0, 0, 0);
+            color: white;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>INVOICE GENERATOR</h1>
+    </div>
+    <div class="container">
+        <form id="invoiceForm">
+            <div class="party-details">
+            <div class="seller-details">
+                <h2>BILL FROM</h2>
+                <label for="sellerName">Seller Name:</label>
+                <input type="text" id="sellerName" required><br>
+                <label for="sellerAddress">Seller Address:</label>
+                <textarea id="sellerAddress" required></textarea><br>
+            </div>
+
+            <div class="buyer-details">
+                <h2>BILL TO</h2>
+                <label for="buyerName">Buyer Name:</label>
+                <input type="text" id="buyerName" required><br>
+                <label for="buyerAddress">Buyer Address:</label>
+                <textarea id="buyerAddress" required></textarea><br>
+            </div>
+            </div>
+
+            <h2>Product Details</h2>
+            <div id="productDetails">
+                <div class="product">
+                    <label for="productName">Product Name:</label>
+                    <input type="text" name="productName[]" required>
+                    <label for="productPrice">Product Price:</label>
+                    <input type="number" name="productPrice[]" required>
+                    <label style="width: 30%;" for="quantity">Quantity:</label>
+                    <input type="number" name="quantity[]" required>
+                    <label for="description">Description:</label>
+                    <input type="textarea" name="description[]">
+                </div>
+            </div>
+            <button type="button" id="addProduct">Add Product</button><br>
+
+            <label for="taxPercentage">Tax Percentage:</label>
+            <input type="number" id="taxPercentage" required><br>
+
+            <button type="button" id="generateInvoice">Generate Invoice</button>
+        </form>
+
+        <div id="invoiceResult">
+            <!-- Invoice details will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("addProduct").addEventListener("click", function () {
+            const productDetails = document.getElementById("productDetails");
+            const product = document.querySelector(".product").cloneNode(true);
+            product.querySelectorAll("input").forEach(input => input.value = "");
+            productDetails.appendChild(product);
+        });
+
+        document.getElementById("generateInvoice").addEventListener("click", function () {
+            const sellerName = document.getElementById("sellerName").value;
+            const sellerAddress = document.getElementById("sellerAddress").value;
+            const buyerName = document.getElementById("buyerName").value;
+            const buyerAddress = document.getElementById("buyerAddress").value;
+            const productNames = document.getElementsByName("productName[]");
+            const productPrices = document.getElementsByName("productPrice[]");
+            const quantities = document.getElementsByName("quantity[]");
+            const descriptions = document.getElementsByName("description[]");
+            const taxPercentage = parseFloat(document.getElementById("taxPercentage").value);
+
+            let total = 0;
+            let invoice = `<h2>Invoice</h2>`;
+            
+            invoice += `<div class="party-details"><h3>Seller Details</h3>`;
+            invoice += `<strong>Seller Name:</strong> ${sellerName}<br>`;
+            invoice += `<strong>Seller Address:</strong> ${sellerAddress}<br></div>`;
+
+            invoice += `<div class="party-details"><h3>Buyer Details</h3>`;
+            invoice += `<strong>Buyer Name:</strong> ${buyerName}<br>`;
+            invoice += `<strong>Buyer Address:</strong> ${buyerAddress}<br></div>`;
+
+            invoice += `<h3>Product Details</h3>`;
+
+            for (let i = 0; i < productNames.length; i++) {
+                const productName = productNames[i].value;
+                const productPrice = parseFloat(productPrices[i].value);
+                const quantity = parseInt(quantities[i].value);
+                const description = descriptions[i].value;
+
+                const lineTotal = productPrice * quantity;
+                total += lineTotal;
+
+                invoice += `<p><strong>${productName}</strong><br>`;
+                invoice += `Price: $${productPrice.toFixed(2)}<br>`;
+                invoice += `Quantity: ${quantity}<br>`;
+                invoice += `Description: ${description}<br>`;
+                invoice += `Total: $${lineTotal.toFixed(2)}</p>`;
+            }
+
+            const taxAmount = (total * (taxPercentage / 100));
+            total += taxAmount;
+
+            invoice += `<h3>Total</h3>`;
+            invoice += `Subtotal: $${total.toFixed(2)}<br>`;
+            invoice += `Tax (${taxPercentage}%): $${taxAmount.toFixed(2)}<br>`;
+            invoice += `Grand Total: $${total.toFixed(2)}`;
+
+            document.getElementById("invoiceResult").innerHTML = invoice;
+        });
+    </script>
+</body>
+</html>
